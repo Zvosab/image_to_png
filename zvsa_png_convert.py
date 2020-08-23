@@ -13,6 +13,27 @@ def remove_every_nth(li, n):
     return li
 
 
+def converter():
+    for images in str_list:
+        counter = 0
+        paths = []
+        sG.one_line_progress_meter('Progress', counter + 1, len(str_list))
+        image = Image.open(images, 'r')
+        paths.append(images)
+        if image.size[0] != image.size[1]:
+            img = ImageOps.pad(image, (400, 400), Image.ANTIALIAS, color=(255, 255, 255))
+        else:
+            img = ImageOps.pad(image, (400, 400), Image.ANTIALIAS)
+        converted = img.convert('P', palette=Image.ADAPTIVE)
+        newpath = ntpath.basename(paths[0])
+        newlist = newpath.split('.')
+        remove_every_nth(newlist, 2)
+        new_str = newlist[0].lower()
+        converted.save(f'{values[1]}/{new_str[:]}.png', 'png')
+        paths.clear()
+        counter += 1
+
+
 sG.theme('DarkBlue2')
 
 layout = [
@@ -26,7 +47,6 @@ window = sG.Window('ZVSA PNG converter v1.02', layout, location=(500, 500), icon
                                                                                  '-symbol-of-rounded-rectangular'
                                                                                  '-stroke_icon-icons.com_57521.ico')
 while True:
-    counter = 0
     event, values = window.read()
     print(event, values)
     t1 = time.time()
@@ -36,23 +56,7 @@ while True:
         chosen_images = values[0]
         str_list = chosen_images.split(';')
         try:
-            for images in str_list:
-                paths = []
-                sG.one_line_progress_meter('Progress', counter + 1, len(str_list))
-                image = Image.open(images, 'r')
-                paths.append(images)
-                if image.size[0] != image.size[1]:
-                    img = ImageOps.pad(image, (400, 400), Image.ANTIALIAS, color=(255, 255, 255))
-                else:
-                    img = ImageOps.pad(image, (400, 400), Image.ANTIALIAS)
-                converted = img.convert('P', palette=Image.ADAPTIVE)
-                newpath = ntpath.basename(paths[0])
-                newlist = newpath.split('.')
-                remove_every_nth(newlist, 2)
-                new_str = newlist[0].lower()
-                converted.save(f'{values[1]}/{new_str[:]}.png', 'png')
-                paths.clear()
-                counter += 1
+            converter()
         except AttributeError:
             popup1 = sG.popup_ok_cancel('No images selected.', keep_on_top=True, icon='png-image-file-type-interface'
                                                                                       '-symbol-of-rounded-rectangular'
